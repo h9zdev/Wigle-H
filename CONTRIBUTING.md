@@ -2,6 +2,8 @@
 
 Network stumbling client for Android, from [wigle.net](https://wigle.net). 
 
+
+
 ## Getting Started
 
 We use Android Studio to build and maintain the project. Fork and clone this repo, setup Android Studio and point it at this repo locally, and launch the Gradle build. We cannot provide technical assistance around this, but it is common and basic enough of a setup that internet searching will provide enough information to get to a working point.
