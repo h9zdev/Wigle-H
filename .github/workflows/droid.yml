@@ -22,8 +22,13 @@ jobs:
     - name: Update API KEY from Secrets
       env: 
         MAPS_KEY: ${{ secrets.CI_DUMMY_MAPS_API_KEY }}
-      run: echo MAPS_API_KEY="$env:MAPS_KEY" > ./local.properties
+      run: echo MAPS_API_KEY="$MAPS_KEY" > ./local.properties
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
-    - name: Build with Gradle
-      run: ./gradlew build
+    - name: Build APK with Gradle
+      run: ./gradlew assembleDebug
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: wiglewifiwardriving-debug.apk
+        path: wiglewifiwardriving/build/outputs/apk/debug/wiglewifiwardriving-debug.apk
