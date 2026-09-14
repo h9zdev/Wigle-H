@@ -1,0 +1,410 @@
+package net.wigle.wigleandroid.util;
+
+import android.content.Context;
+import android.os.Environment;
+import android.os.StatFs;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * file space and name routines
+ */
+public class FileUtility {
+
+    //directory locations - centrally managed here, but must be in sync with fileProvider definitions
+    private  final static String APP_DIR = "wiglewifi";
+    private final static String APP_SUB_DIR = "/"+APP_DIR+"/";
+    private static final String GPX_DIR = APP_SUB_DIR+"gpx/";
+    private final static String KML_DIR = "app_kml";
+    private static final String M8B_DIR = APP_SUB_DIR+"m8b/";
+    private final static String SQLITE_BACKUPS_DIR = "sqlite";
+
+    public final static String CSV_EXT = ".csv";
+    public static final String ERROR_STACK_FILE_PREFIX = "errorstack";
+    public static final String GPX_EXT = ".gpx";
+    public static final String GZ_EXT = ".gz";
+    public final static String CSV_GZ_EXT = CSV_EXT+GZ_EXT;
+    public final static String KML_EXT = ".kml";
+    public static final String M8B_FILE_PREFIX = "export";
+    public static final String M8B_EXT = ".m8b";
+    public static final String SQL_EXT = ".sqlite";
+
+    public static final String WIWI_PREFIX = "WigleWifi_";
+
+    //ALIBI: can't actually read the size of compressed assets via the asset manager - has to be hardcoded
+    //  this can be updated by checking the size of wiglewifiwardriving/src/main/assets/mmcmnc.sqlite on build
+    public final static long EST_MXC_DB_SIZE = 331776;
+
+    // Start warning if there isn't this much space left on the primary storage location for networks
+    public final static long WARNING_THRESHOLD_BYTES = 131072;
+
+    public final static long WIGLE_MAX_UPLOAD_BYTES = 180000000;
+    public final static long MIN_BYTES_PER_CSV_ROW_EST = 130;
+    public final static long MAX_BYTES_PER_CSV_ROW_EST = 320;
+    public final static float LARGE_RECORD_PROBABILITY = 0.5f; //TODO: refine with research
+
+    //based on the smart answer in https://stackoverflow.com/questions/7115016/how-to-find-the-amount-of-free-storage-disk-space-left-on-android
+    public static long getFreeBytes(File path) {
+        try {
+            StatFs stats = new StatFs(path.getAbsolutePath());
+            return stats.getAvailableBlocksLong() * stats.getBlockSizeLong();
+        } catch (Exception ex) {
+            // if we can't determine free space, be optimistic. Possibly because of missing permission?
+            Logging.error("Unable to determine free space: ",ex);
+            return Long.MAX_VALUE;
+        }
+    }
+
+    /**
+     * check internal storage for near-fullness
+     * @return true if we're in the danger zone
+     */
+    public static boolean checkInternalStorageDangerZone() {
+        return getFreeInternalBytes() > WARNING_THRESHOLD_BYTES;
+    }
+
+    /**
+     * check external storage for near-fullness
+     * @return true if we're in the danger zone
+     */
+    public static boolean checkExternalStorageDangerZone() {
+        return getFreeExternalBytes() > WARNING_THRESHOLD_BYTES;
+    }
+
+    /**
+     * get the free bytes on external storage
+     * @return the number of bytes
+     */
+    public static long getFreeExternalBytes() {
+        return FileUtility.getFreeBytes(Environment.getExternalStorageDirectory());
+    }
+
+    /**
+     * get the free bytes on internal storage
+     * @return the number of bytes
+     */
+    public static long getFreeInternalBytes() {
+        return FileUtility.getFreeBytes(Environment.getDataDirectory());
+    }
+
+    /**
+     * Core check to determine whether this device has "external" storage the app can use
+     * @return true if we can find it and we have permission
+     */
+    public static boolean hasSD() {
+        if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.Q) {
+            // past android 10 external doesn't detect properly, but also isn't available
+            return false;
+        }
+        File sdCard = new File(safeFilePath(Environment.getExternalStorageDirectory()) + "/");
+        Logging.info("exists: " + sdCard.exists() + " dir: " + sdCard.isDirectory()
+                + " read: " + sdCard.canRead() + " write: " + sdCard.canWrite()
+                + " path: " + sdCard.getAbsolutePath());
+
+        return sdCard.exists() && sdCard.isDirectory() && sdCard.canRead() && sdCard.canWrite();
+    }
+
+    /**
+     * determine the FS location on which the "external" storage is mounted
+     * @return the string file path
+     */
+    public static String getSDPath() {
+        return safeFilePath(Environment.getExternalStorageDirectory()) + APP_SUB_DIR;
+    }
+
+    /**
+     * Create an output file sensitive to the SD availability of the install - currently used for network temp files and KmlWriter output
+     * @param context Context of the application
+     * @param filename the filename to store
+     * @param internalCacheArea whether to locate this in the cache directory if internal storage
+     * @return tje FileOutputStream of the new file
+     * @throws IOException if unable to create the file/directory.
+     */
+    public static FileOutputStream createFile(final Context context, final String filename,
+                                              final boolean internalCacheArea) throws IOException {
+        final String filepath = getSDPath();
+        final File path = new File(filepath);
+
+        final boolean hasSD = hasSD();
+        if (internalCacheArea) {
+            File file = new File(context.getCacheDir(), filename);
+            Logging.info("creating file: " + file.getCanonicalPath());
+            return new FileOutputStream(file);
+        } else if (hasSD) {
+            //noinspection ResultOfMethodCallIgnored
+            path.mkdirs();
+            final String openString = filepath + filename;
+            Logging.info("openString: " + openString);
+            final File file = new File(openString);
+            if (!file.exists()) {
+                if (!file.createNewFile()) {
+                    throw new IOException("Could not create file: " + openString);
+                }
+            }
+            return new FileOutputStream(file);
+        }
+
+        //TODO: dedupe w/ KmlDownloader.writeSharefile()
+        if (filename.endsWith(KML_EXT)) return createFileInSubdir(context, filename, KML_DIR);
+        if (filename.endsWith(SQL_EXT)) return createFileInSubdir(context, filename, SQLITE_BACKUPS_DIR);
+        Logging.info("saving as: "+filename);
+
+        return context.openFileOutput(filename, Context.MODE_PRIVATE);
+    }
+
+    private static FileOutputStream createFileInSubdir(final Context context, final String filename,
+                                                       final String dir) throws IOException {
+        File path = new File(context.getFilesDir(), dir);
+        if (!path.exists()) {
+            final boolean createdDirs = path.mkdir();
+            if (! createdDirs) {
+                Logging.error("Failed to create directories for: "+dir+" - "+filename);
+            }
+        }
+        if (path.exists() && path.isDirectory()) {
+            //DEBUG: MainActivity.info("... file output directory found");
+            File kmlFile = new File(path, filename);
+            return new FileOutputStream(kmlFile);
+        }
+        return context.openFileOutput(filename, Context.MODE_PRIVATE);
+    }
+
+    /**
+     * return the uploads dir if we're using external storage
+     * @return external file location if we're using external/otherwise null
+     * //TODO: do we write uploads to context.getApplicationContext().getFilesDir() if !hasSD?
+     */
+    public static String getUploadFilePath(final Context context) throws IOException {
+        if ( hasSD() ) {
+            return getSDPath();
+        }
+        return context.getApplicationContext().getFilesDir().getCanonicalPath();
+    }
+
+    /**
+     * return the m8b dir if we're using external storage
+     * @return external file location if we're using external/otherwise null
+     */
+    public static String getM8bPath(final Context context) {
+        if ( hasSD() ) {
+            final String externalPath = safeFilePath(Environment.getExternalStorageDirectory()) + M8B_DIR;
+            Logging.debug("Using m8b (external) "+ externalPath);
+            return externalPath;
+        } else if (context != null) {
+            final String internalPath = safeFilePath(context.getCacheDir())+"/";
+            //= safeFilePath(context.getFilesDir()) + M8B_DIR; // if we need to return to files-path for future sharing perms (1/2)
+            Logging.debug("Using m8b (internal)"+ internalPath);
+            return internalPath;
+        }
+        return null;
+    }
+
+    /**
+     * return the GPX dir if we're using external storage
+     * @return external file location if we're using external/otherwise null
+     */
+    public static String getGpxPath(final Context context) {
+        if ( hasSD() ) {
+            final String externalPath = safeFilePath(Environment.getExternalStorageDirectory()) + GPX_DIR;
+            Logging.debug("Using gpx (external) "+ externalPath);
+            return externalPath;
+        } else if (context != null) {
+            final String internalPath = safeFilePath(context.getCacheDir())+"/";
+            //= safeFilePath(context.getFilesDir()) + GPX_DIR; // if we need to return to files-path for future sharing perms (2/2)
+            Logging.debug("Using gpx (internal)"+ internalPath);
+            return internalPath;
+        }
+        return null;
+    }
+
+    /**
+     * just get the KML location for internal purposes; should be compatible with the results of
+     * getKmlDownloadFile
+     * TODO: switch to use cache dir in case of no-external
+     * @param context the context of the application
+     * @return the string path suitable for intent construction
+     */
+    public static String getKmlPath(final Context context) {
+        if (hasSD()) {
+            //ALIBI: placing these right in the appdir external in storage for now.
+            return FileUtility.getSDPath();
+        }
+        File f = new File(context.getFilesDir(), KML_DIR);
+        return f.getAbsolutePath();
+    }
+
+    /**
+     * just get the DB backup location for internal purposes
+     * @param context the context of the application
+     * @return the string path suitable for intent construction
+     */
+    public static String getBackupPath(final Context context) {
+        if (hasSD()) {
+            //ALIBI: placing these right in the appdir external in storage for now.
+            return FileUtility.getSDPath();
+        }
+        File f = new File(context.getFilesDir(), SQLITE_BACKUPS_DIR);
+        return f.getAbsolutePath();
+    }
+
+    /**
+     * return the error stack dir
+     * @param context application context to locate output
+     * @return the File instance for the path
+     */
+    public static File getErrorStackPath(final Context context) {
+        if (hasSD()) {
+            return new File(getSDPath());
+        }
+        return context.getApplicationContext().getFilesDir();
+    }
+
+    public static File getKmlDownloadFile(final Context context, final String fileName, final String localFilePath) {
+        if (hasSD()) {
+            return new File(localFilePath);
+        } else {
+            File dir = new File(context.getFilesDir(), KML_DIR);
+            File file = new File(dir, fileName + KML_EXT);
+            if (!file.exists()) {
+                Logging.error("file does not exist: " + file.getAbsolutePath());
+                return null;
+            } else {
+                //DEBUG: MainActivity.info(file.getAbsolutePath());
+                return file;
+            }
+        }
+    }
+
+    public static File getCsvGzFile(final Context context, final String fileName) throws NullPointerException {
+        File file;
+        if (hasSD()) {
+            file = new File(getSDPath(), fileName);
+        } else {
+            file = new File(context.getFilesDir(), fileName);
+        }
+        if (!file.exists()) {
+            Logging.error("file does not exist: " + file.getAbsolutePath());
+            return null;
+        } else {
+            //DEBUG: MainActivity.info(file.getAbsolutePath());
+            return file;
+        }
+    }
+
+    /**
+     * Get the latest stack file
+     * @param context context for the request
+     * @return the path string for the latest stack file
+     */
+    public static String getLatestStackfilePath(final Context context) {
+        try {
+            File fileDir = getErrorStackPath(context);
+            if (!fileDir.canRead() || !fileDir.isDirectory()) {
+                Logging.error("file is not readable or not a directory. fileDir: " + fileDir);
+            } else {
+                String[] files = fileDir.list();
+                if (files == null) {
+                    Logging.error("no files in dir: " + fileDir);
+                } else {
+                    String latestFilename = null;
+                    for (String filename : files) {
+                        if (filename.startsWith(ERROR_STACK_FILE_PREFIX)) {
+                            if (latestFilename == null || filename.compareTo(latestFilename) > 0) {
+                                latestFilename = filename;
+                            }
+                        }
+                    }
+                    Logging.info("latest filename: " + latestFilename);
+
+                    return safeFilePath(fileDir) + "/" + latestFilename;
+                }
+            }
+        } catch (Exception ex) {
+            Logging.error( "error finding stack file: " + ex, ex );
+        }
+        return null;
+    }
+
+    /**
+     *  safely get the canonical path, as this call throws exceptions on some devices
+     * @param file the file for which to retrieve the cannonical path
+     * @return the String path
+     */
+    private static String safeFilePath(final File file) {
+        String retval = null;
+        try {
+            retval = file.getCanonicalPath();
+        } catch (Exception ex) {
+            Logging.error("Failed to get filepath", ex);
+        }
+
+        if (retval == null) {
+            retval = file.getAbsolutePath();
+        }
+        return retval;
+    }
+
+    /**
+     * file inspection debugging method
+     * @param directory the directory to enumerate
+     */
+    public static void printDirContents(final File directory) {
+        Logging.info("Listing for: "+directory.toString());
+        File[] files = directory.listFiles();
+        if (files != null) {
+            Logging.info("\t# files: " + files.length);
+            for (File file : files) {
+                Logging.info("\t\t" + file.getName() + "\t" + file.getAbsoluteFile());
+            }
+        } else {
+            Logging.error("Null file listing for "+directory);
+        }
+    }
+
+    public static List<File> getCsvUploadsAndDownloads(final Context context) throws IOException {
+        List<File> rawFiles = new ArrayList<>();
+
+        final String location = FileUtility.getUploadFilePath(context);
+        if (null != location) {
+            final File directory = new File(location);
+            if (directory.exists()) {
+                File[] files = directory.listFiles((dir, name) -> name.endsWith(CSV_GZ_EXT));
+                if (null != files) {
+                    for (File file : files) {
+                        if (file.getName().endsWith(CSV_GZ_EXT)) {
+                            rawFiles.add(file);
+                            //} else {
+                            //DEBUG: MainActivity.info("skipping: " + files[i].getName());
+                        }
+                    }
+                }
+            }
+        }
+        return rawFiles;
+    }
+
+    /**
+     * Estimate whether the # of un-uploaded networks indicates whether upload file is likely too big for a single upload upload.
+     * @param outstanding the number of un-uploaded networks
+     * @return true if the upload file should likely be partitioned, otherwise false
+     */
+    public static boolean checkUploadOversize(final long outstanding) {
+        return outstanding > maxRowsPerUpload();
+    }
+
+    /**
+     * Estimate the maximum number of rows that can be included in a single upload
+     * @return the maximum estimated number of rows
+     */
+    public static long maxRowsPerUpload() {
+        // both bounds in checkUploadOversize must hold; use the more conservative cap.
+        final long minBoundCap = WIGLE_MAX_UPLOAD_BYTES / MIN_BYTES_PER_CSV_ROW_EST;
+        final long maxBoundCap = (long) (WIGLE_MAX_UPLOAD_BYTES
+                / (MAX_BYTES_PER_CSV_ROW_EST * LARGE_RECORD_PROBABILITY));
+        return Math.min(minBoundCap, maxBoundCap);
+    }
+}

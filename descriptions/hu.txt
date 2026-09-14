@@ -1,0 +1,31 @@
+Title (30 characters):
+WiGLE Wifi Wardriving
+
+Promo (80 characters):
+Wardriving: netstumble, vezeték nélküli hálózatok megjelenítése, feltöltés a WiGLE adatbázisba.
+
+Description (4000 characters):
+A Wigle egy nyílt forráskódú wardriving alkalmazás a netstumble-höz, amely megjeleníti és feltérképezi a talált vezeték nélküli hálózatokat és cellatornyokat bárhol a világon, és könnyen fel tudja ezeket tölteni a WiGLE.net adatbázisába. A WiGLE 2001-ben indult, és ma már több mint 125 millió WiFi-hálózatot térképezett fel világszerte.
+
+• Versenyezzen a WiGLE globális ranglistáján a legtöbb felfedezett hálózattal
+• Exportáljon CSV-fájlokba az SD-kártyára (vesszővel elválasztott értékek)
+• Exportáljon KML-fájlokba az SD-kártyára (Google Mapsbe/Earthbe történő importálása)
+• Hang- és felolvasásos riasztások
+• Helyi adatbázis az új hálózatok követéséhez
+• Valós idejű térkép a talált hálózatokról (OpenStreetMap)
+• Áthelyezheti az alkalmazást az SD-kártyára
+• Némítás gomb, az összes hang/beszéd azonnali leállításához
+• Bluetooth GPS támogatás a hamis helyek révén
+• Nincsenek hirdetések
+
+Kiadási megjegyzések: https://github.com/wiglenet/wigle-wifi-wardriving/blob/master/TODO
+
+A WiFi és cellatornyok térképezéséhez meg kell várnia, hogy az eszköz meghatározza a jelenlegi helyet, GPS vagy hálózati hely alapján.
+A térképen: a körök WiFi-k, a négyzetek cellatornyok. A világos színek már látott hálózatokat jelentenek, a lilák újak a helyi adatbázisban.
+Ha problémája van a bejelentkezéssel, vagy javaslata van, küldjön e-mailt a wigle-admin@wigle.net címre, és szívesen segítünk.
+A „Telefon állapotának olvasása” engedély azért szükséges, hogy észre vegy, hogy hívás van folyamatban, és némitani kell a hangokat (és a beszédet).
+Rendelkezésre állnak olyan fájlok, amelyek a fordítást segítik. Ez főleg gépi fordítás volt, mert nyilvánvalóan senki nem ismer minden nyelvet. Segíthet jobbá tenni a dolgokat az által, hogy beolvasztási kéréseket nyit itt:
+https://github.com/wiglenet/wigle-wifi-wardriving/pulls
+vagy elküldi őket a wigle-admin@wigle.net címre.
+
+Folytassa a felfedezést!

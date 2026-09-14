@@ -1,0 +1,439 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:clipToPadding="false">
+<LinearLayout
+    android:id="@+id/data_tools_layout"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="8dp"
+        >
+        <TextView
+            android:text="@string/database_stats"
+            style="@style/WiGLESectionHeader.Large"
+            />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            >
+            <LinearLayout android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_weight="1">
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:paddingHorizontal="2dp"
+                    app:srcCompat="@drawable/ic_wifi"/>
+                <TextView android:id="@+id/database_wifi"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/WiFiColor"
+                    android:textSize="18sp"
+                    android:paddingHorizontal="2dp"
+                    tools:text="888,888,888" />
+            </LinearLayout>
+            <LinearLayout android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_weight="1">
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:paddingHorizontal="2dp"
+                    app:srcCompat="@drawable/ic_bt"
+                    />
+                <TextView android:id="@+id/database_bt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/BtColor"
+                    android:textSize="18sp"
+                    android:paddingHorizontal="2dp"
+                    tools:text="888,888,888" />
+            </LinearLayout>
+            <LinearLayout android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_weight="1">
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    app:srcCompat="@drawable/ic_cell"
+                    android:paddingHorizontal="2dp"
+                    />
+                <TextView android:id="@+id/database_cell"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/CellColor"
+                    android:textSize="18sp"
+                    android:paddingHorizontal="2dp"
+                    tools:text="888,888,888" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="2dip"
+        style="@style/DividerColor"
+        android:layout_marginBottom="4dip"
+        />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/NetworkViewOverlay">
+        <TextView
+            android:text="@string/tab_search"
+            android:paddingHorizontal="4dp"
+            style="@style/WiGLESectionHeader"
+            />
+    </LinearLayout>
+    <include layout="@layout/search"/>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="6dip">
+
+        <Button android:id="@+id/perform_search_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/search_button"
+            android:layout_weight="1"
+            />
+
+        <Button android:id="@+id/reset_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/reset_button"
+            android:layout_weight="1"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="2dip"
+        style="@style/DividerColor"
+        android:layout_marginBottom="4dip"
+        />
+
+    <TextView android:text="@string/export"
+        android:layout_marginTop="4dip"
+        android:layout_marginHorizontal="4dip"
+        style="@style/WiGLESectionHeader"
+        android:textSize="16sp"
+        />
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+        >
+        <Button android:id="@+id/csv_run_export_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/csv_run_export_button" android:layout_weight="0"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/csv_run_export_text"
+            android:layout_weight="5"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical">
+        <Button android:id="@+id/kml_run_export_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/kml_run_export_button" android:layout_weight="0"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/kml_run_export_text"
+            android:layout_weight="5"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical">
+        <Button android:id="@+id/csv_export_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/csv_export_button" android:layout_weight="0"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/csv_export_text"
+            android:layout_weight="5"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical">
+        >
+        <Button android:id="@+id/kml_export_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/kml_export_button" android:layout_weight="0"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/kml_export_text"
+            android:layout_weight="5"
+            />
+    </LinearLayout>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dip"
+        android:gravity="center_vertical">
+        >
+        <Button android:id="@+id/export_m8b_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/export_m8b_button"
+            android:layout_weight="0"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/export_m8b"
+            android:layout_weight="5"
+            />
+    </LinearLayout>
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:visibility="gone"
+        android:layout_height="wrap_content"
+        android:id="@+id/export_gpx_tools">
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dip"
+            android:gravity="center_vertical"
+            >
+            <Button android:id="@+id/export_gpx_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/export_gpx_button"
+                android:layout_weight="0"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/export_gpx"
+                android:layout_weight="5"
+                />
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dip"
+            android:gravity="center_vertical"
+            >
+            <Button android:id="@+id/manage_gpx_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/manage_gpx_button"
+                android:layout_weight="0"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/manage_gpx"
+                android:layout_weight="5"
+                />
+        </LinearLayout>
+    </LinearLayout>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="2dip"
+        style="@style/DividerColor"
+        android:layout_marginBottom="4dip"
+        />
+    <TextView android:text="@string/backup_restore"
+        android:layout_marginTop="4dip"
+        android:layout_marginHorizontal="4dip"
+        style="@style/WiGLESectionHeader"
+        android:textSize="16sp"
+        />
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical">
+        <Button android:id="@+id/backup_db_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/backup_db_button" android:layout_weight="0"/>
+        <TextView
+            android:id="@+id/backup_db_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/backup_db_text"
+            android:layout_weight="5"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dip"
+        android:gravity="center_vertical">
+        <Button android:id="@+id/import_observed_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/import_observed_button" android:layout_weight="0"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/import_observed_text"
+            android:layout_weight="5"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="2dip"
+        style="@style/DividerColor"
+        android:orientation="horizontal"
+        />
+    <TextView android:text="@string/setting_db_marker"
+        android:layout_marginTop="4dip"
+        android:layout_marginHorizontal="4dip"
+        style="@style/WiGLESectionHeader"
+        android:textSize="16sp"
+        />
+    <RelativeLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="4dip"
+        android:gravity="center_vertical">
+        >
+        <TextView
+            android:id="@+id/reset_maxid_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/reset_maxid_text"
+            android:layout_alignParentStart="true"
+            />
+        <TextView
+            android:id="@+id/current_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="2dp"
+            android:layout_gravity="end"
+            android:layout_toStartOf="@+id/upload_outstanding"
+            tools:text="8,888,888"
+            />
+        <TextView
+            android:id="@+id/upload_outstanding"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/UploadColor"
+            android:layout_alignParentEnd="true"
+            android:paddingHorizontal="2dp"
+            tools:text="(8,888,887)"
+            />
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/warn_filesize"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        tools:visibility="visible">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/file_size_warning"
+            android:padding="4dp"
+            style="@style/StatRankColor"
+            />
+    </RelativeLayout>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical">
+        <Button android:id="@+id/reset_maxid_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/reset_maxid_button"
+            android:layout_weight="0"/>
+        <TextView
+            android:id="@+id/zero_db_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/flag_whole_database"
+            android:layout_weight="5"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dip"
+        android:gravity="center_vertical">
+        <Button android:id="@+id/maxout_maxid_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/maxout_maxid_button" android:layout_weight="0"/>
+        <TextView
+            android:id="@+id/maxout_maxid_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/maxout_maxid_text"
+            android:layout_weight="5"
+            />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="2dip"
+        style="@style/DividerColor"
+        android:orientation="horizontal"
+        />
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical">
+        <Button android:id="@+id/clear_db"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFF5555"
+            android:text="@string/clear_db_button" android:layout_weight="0"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/clear_db_text"
+            android:layout_weight="5"
+            />
+    </LinearLayout>
+</LinearLayout>
+</ScrollView>

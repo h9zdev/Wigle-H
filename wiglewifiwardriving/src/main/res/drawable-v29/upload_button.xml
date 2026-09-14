@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/cyber_cyan">
+    <item>
+        <layer-list>
+            <item>
+                <shape android:shape="rectangle">
+                    <solid android:color="@color/cyber_cyan_glow" />
+                    <corners android:radius="0dp" />
+                </shape>
+            </item>
+            <item android:top="2dp" android:bottom="2dp" android:left="2dp" android:right="2dp">
+                <shape android:shape="rectangle">
+                    <gradient
+                        android:startColor="@color/cyber_panel"
+                        android:endColor="@color/cyber_black"
+                        android:angle="90" />
+                    <corners android:radius="0dp" />
+                    <stroke
+                        android:width="2dp"
+                        android:color="@color/cyber_cyan" />
+                    <padding
+                        android:left="0dip"
+                        android:top="0dip"
+                        android:right="0dip"
+                        android:bottom="0dip" />
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+</ripple>
