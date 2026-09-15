@@ -27,6 +27,10 @@ apply plugin: 'com.android.application'
 apply plugin: 'de.undercouch.download'
 apply plugin: 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
 
+secrets {
+    defaultPropertiesFileName = 'local.defaults.properties'
+}
+
 android {
     namespace "net.wigle.wigleandroid"
     compileSdk = 36
