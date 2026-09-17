@@ -22,6 +22,8 @@ import net.wigle.wigleandroid.ui.ScreenChildActivity;
 import net.wigle.wigleandroid.util.Logging;
 import net.wigle.wigleandroid.util.PreferenceKeys;
 
+import org.jspecify.annotations.NonNull;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -38,8 +40,8 @@ public class MacFilterActivity extends ScreenChildActivity {
     private String filterKey;
     ArrayList<String> listItems=new ArrayList<>();
     AddressFilterAdapter filtersAdapter;
-    public static final String SCAN_MAC_FILTER_MESSAGE = "net.wigle.wigleandroid.filter.SCAN_MAC_OR_OUI";
-    public static final String SCAN_MAC_OUI_LIST = "net.wigle.wigleandroid.filter.MAC_OUI_LIST";
+    public static final String SCAN_MAC_FILTER_MESSAGE = "dev.wigle.h.hayos.net.filter.SCAN_MAC_OR_OUI";
+    public static final String SCAN_MAC_OUI_LIST = "dev.wigle.h.hayos.net.filter.MAC_OUI_LIST";
     private ActivityResultLauncher<Intent> startOcrActivity;
 
     @Override
@@ -58,7 +60,7 @@ public class MacFilterActivity extends ScreenChildActivity {
         if (null != addressFilterWrapper) {
             ViewCompat.setOnApplyWindowInsetsListener(addressFilterWrapper, new OnApplyWindowInsetsListener() {
                         @Override
-                        public @org.jspecify.annotations.NonNull WindowInsetsCompat onApplyWindowInsets(@org.jspecify.annotations.NonNull View v, @org.jspecify.annotations.NonNull WindowInsetsCompat insets) {
+                        public @NonNull WindowInsetsCompat onApplyWindowInsets(@NonNull View v, @NonNull WindowInsetsCompat insets) {
                             final Insets innerPadding = insets.getInsets(
                                     WindowInsetsCompat.Type.statusBars() |
                                             WindowInsetsCompat.Type.displayCutout());
@@ -75,7 +77,7 @@ public class MacFilterActivity extends ScreenChildActivity {
         if (null != bottomToolsLayout) {
             ViewCompat.setOnApplyWindowInsetsListener(bottomToolsLayout, new OnApplyWindowInsetsListener() {
                 @Override
-                public @org.jspecify.annotations.NonNull WindowInsetsCompat onApplyWindowInsets(@org.jspecify.annotations.NonNull View v, @org.jspecify.annotations.NonNull WindowInsetsCompat insets) {
+                public @NonNull WindowInsetsCompat onApplyWindowInsets(@NonNull View v, @NonNull WindowInsetsCompat insets) {
                     final Insets innerPadding = insets.getInsets(
                             WindowInsetsCompat.Type.navigationBars() /*TODO:  | cutouts?*/);
                     v.setPadding(

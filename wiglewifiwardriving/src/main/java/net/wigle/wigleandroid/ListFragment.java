@@ -70,6 +70,7 @@ import java.util.concurrent.Executors;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static net.wigle.wigleandroid.util.PreferenceKeys.PREF_USE_FOSS_MAPS;
+import static net.wigle.wigleandroid.util.PreferenceKeys.PREF_USE_MAPBOX_MAPS;
 
 /**
  * Main Network List View Fragment Adapter. Manages dynamic update of view apart from list when showing.
@@ -713,14 +714,17 @@ public final class ListFragment extends Fragment implements ApiListener, DialogL
         listView.setOnItemClickListener((parent, view, position, id) -> {
             final Network network = (Network) parent.getItemAtPosition(position);
             if (network != null && activity != null) {
-                boolean fossMode = false;
+                boolean useMapbox = false;
+                boolean useFoss = true;
                 final MainActivity main = MainActivity.getMainActivity();
                 if (null != main) {
                     final SharedPreferences prefs = main.getSharedPreferences(PreferenceKeys.SHARED_PREFS, 0);
-                    fossMode = prefs.getBoolean(PREF_USE_FOSS_MAPS, false);
+                    useMapbox = prefs.getBoolean(PREF_USE_MAPBOX_MAPS, false);
+                    useFoss = prefs.getBoolean(PREF_USE_FOSS_MAPS, true);
                 }
+                boolean customMapMode = useMapbox || useFoss;
                 MainActivity.getNetworkCache().put(network.getBssid(), network);
-                final Intent intent = new Intent(activity, fossMode ? FossNetworkActivity.class : NetworkActivity.class);
+                final Intent intent = new Intent(activity, customMapMode ? FossNetworkActivity.class : NetworkActivity.class);
                 intent.putExtra(NETWORK_EXTRA_BSSID, network.getBssid());
                 intent.putExtra(NETWORK_EXTRA_IS_DB_RESULT, isDbResult);
                 activity.startActivity(intent);

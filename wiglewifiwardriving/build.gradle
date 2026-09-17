@@ -31,7 +31,7 @@ android {
     namespace "net.wigle.wigleandroid"
     compileSdk = 36
     defaultConfig {
-        applicationId "net.wigle.wigleandroid"
+        applicationId "dev.wigle.h.hayos.net"
         minSdkVersion 24
         targetSdkVersion 36
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -138,6 +138,7 @@ dependencies {
     implementation 'com.github.razir.progressbutton:progressbutton:2.1.0'
     implementation 'org.maplibre.gl:android-sdk:12.3.1'
     implementation 'org.maplibre.gl:android-plugin-annotation-v9:3.0.2'
+    implementation 'org.osmdroid:osmdroid-android:6.1.20'
     //debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.10'
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'androidx.test:core:1.7.0'

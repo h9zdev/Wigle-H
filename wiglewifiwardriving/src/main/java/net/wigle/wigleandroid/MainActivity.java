@@ -107,6 +107,7 @@ import net.wigle.wigleandroid.util.FileUtility;
 import net.wigle.wigleandroid.util.InstallUtility;
 import net.wigle.wigleandroid.util.Logging;
 import net.wigle.wigleandroid.util.PreferenceKeys;
+import net.wigle.wigleandroid.util.RssiHistoryCache;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -152,7 +153,7 @@ public final class MainActivity extends AppCompatActivity implements TextToSpeec
     public static class State {
         public MxcDatabaseHelper mxcDbHelper;
         public DatabaseHelper dbHelper;
-        public net.wigle.wigleandroid.util.RssiHistoryCache rssiHistoryCache;
+        public RssiHistoryCache rssiHistoryCache;
         ServiceConnection serviceConnection;
         WigleService wigleService;
         AtomicBoolean finishing;
@@ -237,10 +238,10 @@ public final class MainActivity extends AppCompatActivity implements TextToSpeec
     // that as long as scans keep firing we hold the lock. Combat excessive wake-locks.
     private static final long SCAN_WAKE_REFRESH_MS = 30_000L;
 
-    public static final String ACTION_END = "net.wigle.wigleandroid.END";
-    public static final String ACTION_UPLOAD = "net.wigle.wigleandroid.UPLOAD";
-    public static final String ACTION_PAUSE = "net.wigle.wigleandroid.PAUSE";
-    public static final String ACTION_SCAN = "net.wigle.wigleandroid.SCAN";
+    public static final String ACTION_END = "dev.wigle.h.hayos.net.END";
+    public static final String ACTION_UPLOAD = "dev.wigle.h.hayos.net.UPLOAD";
+    public static final String ACTION_PAUSE = "dev.wigle.h.hayos.net.PAUSE";
+    public static final String ACTION_SCAN = "dev.wigle.h.hayos.net.SCAN";
 
     public static final String FRAGMENT_TAG_PREFIX = "VisibleFragment-";
 
@@ -426,12 +427,12 @@ public final class MainActivity extends AppCompatActivity implements TextToSpeec
 
         // DO NOT turn these into |=, they will cause older dalvik verifiers to freak out
         state.inEmulator = id == null;
-        state.inEmulator = state.inEmulator || "sdk".equals(android.os.Build.PRODUCT);
-        state.inEmulator = state.inEmulator || "google_sdk".equals(android.os.Build.PRODUCT);
+        state.inEmulator = state.inEmulator || "sdk".equals(Build.PRODUCT);
+        state.inEmulator = state.inEmulator || "google_sdk".equals(Build.PRODUCT);
 
         state.uiMode = getResources().getConfiguration().uiMode;
 
-        Logging.info("MAIN:\tid: '" + id + "' inEmulator: " + state.inEmulator + " product: " + android.os.Build.PRODUCT);
+        Logging.info("MAIN:\tid: '" + id + "' inEmulator: " + state.inEmulator + " product: " + Build.PRODUCT);
         Logging.info("MAIN:\tandroid release: '" + Build.VERSION.RELEASE);
 
         if (state.numberFormat0 == null) {
@@ -486,7 +487,7 @@ public final class MainActivity extends AppCompatActivity implements TextToSpeec
         // ALIBI: don't inherit MxC implant failures from backups.
         if (InstallUtility.isFirstInstall(this)) {
             SharedPreferences mySPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-            SharedPreferences.Editor editor = mySPrefs.edit();
+            Editor editor = mySPrefs.edit();
             editor.remove(ListFragment.PREF_MXC_REINSTALL_ATTEMPTED);
             if (!isImperialUnitsLocale()) {
                 editor.putBoolean(PreferenceKeys.PREF_METRIC, true);
@@ -984,26 +985,26 @@ public final class MainActivity extends AppCompatActivity implements TextToSpeec
             if (null != mainActivity) {
                 SharedPreferences prefs = mainActivity.getSharedPreferences(PreferenceKeys.SHARED_PREFS, Context.MODE_PRIVATE);
                 if (null != prefs) {
-                    if (prefs.getBoolean(PreferenceKeys.PREF_USE_FOSS_MAPS, false)) {
+                    if (prefs.getBoolean(PreferenceKeys.PREF_USE_MAPBOX_MAPS, false) || prefs.getBoolean(PreferenceKeys.PREF_USE_FOSS_MAPS, true)) {
                         return FossSearchFragment.class;
                     } else {
                         return SearchFragment.class;
                     }
                 }
             }
-            return SearchFragment.class;
+            return FossSearchFragment.class;
         } else if (navId == R.id.nav_map) {
             if (null != mainActivity) {
                 SharedPreferences prefs = mainActivity.getSharedPreferences(PreferenceKeys.SHARED_PREFS, Context.MODE_PRIVATE);
                 if (null != prefs) {
-                    if (prefs.getBoolean(PreferenceKeys.PREF_USE_FOSS_MAPS, false)) {
+                    if (prefs.getBoolean(PreferenceKeys.PREF_USE_MAPBOX_MAPS, false) || prefs.getBoolean(PreferenceKeys.PREF_USE_FOSS_MAPS, true)) {
                         return FossMappingFragment.class;
                     } else {
                         return MappingFragment.class;
                     }
                 }
             }
-            return MappingFragment.class;
+            return FossMappingFragment.class;
         } else if (navId == R.id.nav_user_stats) {
             return UserStatsFragment.class;
         } else if (navId == R.id.nav_rank) {
@@ -1094,7 +1095,7 @@ public final class MainActivity extends AppCompatActivity implements TextToSpeec
         final boolean histogramsEnabled = prefs.getBoolean(
                 PreferenceKeys.PREF_DISPLAY_INLINE_LIST_SIGNAL_HISTOGRAMS, false);
         if (state.rssiHistoryCache == null) {
-            state.rssiHistoryCache = new net.wigle.wigleandroid.util.RssiHistoryCache(histogramsEnabled);
+            state.rssiHistoryCache = new RssiHistoryCache(histogramsEnabled);
         } else {
             state.rssiHistoryCache.setEnabled(histogramsEnabled);
         }
@@ -1549,23 +1550,23 @@ public final class MainActivity extends AppCompatActivity implements TextToSpeec
                         if (detail != null) {
                             builder.append("detail: ").append(detail).append("\n");
                         }
-                        builder.append("MODEL: ").append(android.os.Build.MODEL).append("\n");
-                        builder.append("RELEASE: ").append(android.os.Build.VERSION.RELEASE).append("\n");
+                        builder.append("MODEL: ").append(Build.MODEL).append("\n");
+                        builder.append("RELEASE: ").append(Build.VERSION.RELEASE).append("\n");
 
-                        builder.append("BOARD: ").append(android.os.Build.BOARD).append("\n");
-                        builder.append("BRAND: ").append(android.os.Build.BRAND).append("\n");
+                        builder.append("BOARD: ").append(Build.BOARD).append("\n");
+                        builder.append("BRAND: ").append(Build.BRAND).append("\n");
                         // android 1.6 android.os.Build.CPU_ABI;
-                        builder.append("DEVICE: ").append(android.os.Build.DEVICE).append("\n");
-                        builder.append("DISPLAY: ").append(android.os.Build.DISPLAY).append("\n");
-                        builder.append("FINGERPRINT: ").append(android.os.Build.FINGERPRINT).append("\n");
-                        builder.append("HOST: ").append(android.os.Build.HOST).append("\n");
-                        builder.append("ID: ").append(android.os.Build.ID).append("\n");
+                        builder.append("DEVICE: ").append(Build.DEVICE).append("\n");
+                        builder.append("DISPLAY: ").append(Build.DISPLAY).append("\n");
+                        builder.append("FINGERPRINT: ").append(Build.FINGERPRINT).append("\n");
+                        builder.append("HOST: ").append(Build.HOST).append("\n");
+                        builder.append("ID: ").append(Build.ID).append("\n");
                         // android 1.6: android.os.Build.MANUFACTURER;
-                        builder.append("PRODUCT: ").append(android.os.Build.PRODUCT).append("\n");
-                        builder.append("TAGS: ").append(android.os.Build.TAGS).append("\n");
-                        builder.append("TIME: ").append(android.os.Build.TIME).append("\n");
-                        builder.append("TYPE: ").append(android.os.Build.TYPE).append("\n");
-                        builder.append("USER: ").append(android.os.Build.USER).append("\n");
+                        builder.append("PRODUCT: ").append(Build.PRODUCT).append("\n");
+                        builder.append("TAGS: ").append(Build.TAGS).append("\n");
+                        builder.append("TIME: ").append(Build.TIME).append("\n");
+                        builder.append("TYPE: ").append(Build.TYPE).append("\n");
+                        builder.append("USER: ").append(Build.USER).append("\n");
 
                         // write to file
                         fos.write(builder.toString().getBytes(ENCODING));
@@ -1647,8 +1648,8 @@ public final class MainActivity extends AppCompatActivity implements TextToSpeec
     }
 
     public static boolean isDevMode(final Context context) {
-        return android.provider.Settings.Secure.getInt(context.getContentResolver(),
-                android.provider.Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 0) != 0;
+        return Settings.Secure.getInt(context.getContentResolver(),
+                Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 0) != 0;
     }
 
     private void setupSound() {
@@ -1881,7 +1882,7 @@ public final class MainActivity extends AppCompatActivity implements TextToSpeec
             if ((willActivateBt && useBt) || willActivateWifi || alertVersions) {
                 String activationMessages = "";
 
-                SharedPreferences.Editor editor = prefs.edit();
+                Editor editor = prefs.edit();
                 if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
                     if (pieBadCount < 5) activationMessages = getString(R.string.pie_bad);
                     editor.putInt(ListFragment.PREF_PIE_BAD_TOAST_COUNT, pieBadCount + 1);
@@ -2029,7 +2030,7 @@ public final class MainActivity extends AppCompatActivity implements TextToSpeec
             if (!bt.isEnabled()) {
                 return true;
             }
-        } catch (java.lang.SecurityException sex) {
+        } catch (SecurityException sex) {
             Logging.warn("bt activation security exception");
         }
         return false;
@@ -3044,7 +3045,7 @@ public final class MainActivity extends AppCompatActivity implements TextToSpeec
     public static void refreshApiManager() {
         final MainActivity mainActivity = MainActivity.getMainActivity();
         if (null != mainActivity) {
-            MainActivity.State s = mainActivity.getState();
+            State s = mainActivity.getState();
             if (null != s) {
                 SharedPreferences prefs = mainActivity.getSharedPreferences(PreferenceKeys.SHARED_PREFS, Context.MODE_PRIVATE);
                 if (null != prefs) {

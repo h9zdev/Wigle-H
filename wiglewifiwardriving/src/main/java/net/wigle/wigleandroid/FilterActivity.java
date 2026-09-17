@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.ActionBar;
 import androidx.core.content.FileProvider;
 import androidx.core.graphics.Insets;
 import androidx.core.view.OnApplyWindowInsetsListener;
@@ -41,7 +42,7 @@ import java.nio.charset.StandardCharsets;
  */
 public class FilterActivity extends ScreenChildActivity {
 
-    public static final String ADDR_FILTER_MESSAGE = "net.wigle.wigleandroid.filter.MESSAGE";
+    public static final String ADDR_FILTER_MESSAGE = "dev.wigle.h.hayos.net.filter.MESSAGE";
     public static final String INTENT_DISPLAY_FILTER = "displayFilter";
     public static final String INTENT_LOG_FILTER = "logFilter";
     public static final String INTENT_ALERT_FILTER = "alertFilter";
@@ -55,7 +56,7 @@ public class FilterActivity extends ScreenChildActivity {
         final SharedPreferences.Editor editor = prefs.edit();
         setContentView(R.layout.listfiltersettings);
 
-        final androidx.appcompat.app.ActionBar actionBar = getSupportActionBar();
+        final ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
@@ -82,7 +83,7 @@ public class FilterActivity extends ScreenChildActivity {
         if (null != bottomToolsLayout) {
             ViewCompat.setOnApplyWindowInsetsListener(bottomToolsLayout, new OnApplyWindowInsetsListener() {
                 @Override
-                public @org.jspecify.annotations.NonNull WindowInsetsCompat onApplyWindowInsets(@org.jspecify.annotations.NonNull View v, @org.jspecify.annotations.NonNull WindowInsetsCompat insets) {
+                public @NonNull WindowInsetsCompat onApplyWindowInsets(@NonNull View v, @NonNull WindowInsetsCompat insets) {
                     final Insets innerPadding = insets.getInsets(
                             WindowInsetsCompat.Type.navigationBars() /*TODO:  | cutouts?*/);
                     v.setPadding(

@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="24dp"
+    android:layout_height="28dp"
     android:orientation="horizontal"
     android:id="@+id/notif_sm"
-    android:paddingHorizontal="20dp">
+    android:paddingHorizontal="12dp">
     <TextView
         android:id="@+id/notif_title"
         android:layout_height="0dp"
@@ -17,7 +18,7 @@
         android:layout_height="match_parent"
         android:orientation="horizontal"
         android:weightSum="4"
-        android:paddingVertical="0dp"
+        android:gravity="center_vertical"
         android:layout_below="@+id/notif_title"
         android:baselineAligned="false">
         <LinearLayout
@@ -25,22 +26,21 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:orientation="horizontal"
-            android:gravity="start"
+            android:gravity="center_vertical|start"
             tools:ignore="UseCompoundDrawables">
             <ImageView
-                android:layout_width="13dp"
-                android:layout_height="match_parent"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
                 android:src="@drawable/ic_wifi_notif"
+                app:tint="@color/cyber_pink"
                 android:layout_marginStart="2dp"
-                android:layout_marginEnd="2dp"
-                android:paddingTop="1dp"
-                android:paddingBottom="3dp"/>
+                android:layout_marginEnd="4dp"/>
             <TextView
                 android:id="@+id/wifi_new_notif_sm"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:textSize="14sp"
-                android:paddingVertical="1dp"
+                android:layout_height="wrap_content"
+                android:textSize="13sp"
+                android:textColor="@color/cyber_pink"
                 style="@style/TextAppearance.Compat.Notification.Line2"/>
         </LinearLayout>
 
@@ -49,20 +49,21 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:orientation="horizontal"
-            android:gravity="start"
+            android:gravity="center_vertical|start"
             tools:ignore="UseCompoundDrawables">
             <ImageView
-                android:layout_width="13dp"
-                android:layout_height="wrap_content"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
                 android:src="@drawable/ic_cell_notif"
+                app:tint="@color/cyber_cyan"
                 android:layout_marginStart="2dp"
-                android:layout_marginEnd="1dp"/>
+                android:layout_marginEnd="4dp"/>
             <TextView
                 android:id="@+id/cell_new_notif_sm"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:textSize="14sp"
-                android:paddingVertical="2dp"
+                android:layout_height="wrap_content"
+                android:textSize="13sp"
+                android:textColor="@color/cyber_cyan"
                 style="@style/TextAppearance.Compat.Notification.Line2" />
         </LinearLayout>
         <LinearLayout
@@ -70,20 +71,21 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:orientation="horizontal"
-            android:gravity="start"
+            android:gravity="center_vertical|start"
             tools:ignore="UseCompoundDrawables">
             <ImageView
                 android:layout_width="14dp"
-                android:layout_height="wrap_content"
+                android:layout_height="14dp"
                 android:src="@drawable/ic_bt_notif"
+                app:tint="@color/cyber_pink"
                 android:layout_marginStart="2dp"
-                android:layout_marginEnd="0dp"/>
+                android:layout_marginEnd="4dp"/>
             <TextView
                 android:id="@+id/bt_new_notif_sm"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:paddingVertical="2dp"
+                android:textSize="13sp"
+                android:textColor="@color/cyber_pink"
                 style="@style/TextAppearance.Compat.Notification.Line2" />
         </LinearLayout>
         <LinearLayout
@@ -91,22 +93,22 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:orientation="horizontal"
-            android:gravity="start"
+            android:gravity="center_vertical|start"
             tools:ignore="UseCompoundDrawables">
             <ImageView
-                android:layout_width="12dp"
-                android:paddingTop="2dp"
-                android:layout_height="wrap_content"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
                 android:src="@drawable/ic_dist_notif"
+                app:tint="@color/cyber_cyan"
                 android:layout_marginStart="2dp"
-                android:layout_marginEnd="2dp"
+                android:layout_marginEnd="4dp"
                 android:contentDescription="@string/dash_dist_run" />
             <TextView
                 android:id="@+id/dist_notif_sm"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:paddingVertical="2dp"
+                android:textSize="13sp"
+                android:textColor="@color/cyber_cyan"
                 style="@style/TextAppearance.Compat.Notification.Line2"/>
         </LinearLayout>
     </LinearLayout>

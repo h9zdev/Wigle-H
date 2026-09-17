@@ -253,7 +253,7 @@ public class UploadsFragment extends ProgressThrobberFragment {
     }
 //TODO: apply to JSON object
     private String statusValue(Upload.Status statusCode) {
-        String packageName = "net.wigle.wigleandroid";
+        String packageName = "dev.wigle.h.hayos.net";
         int stringId =  getResources().getIdentifier("upload_unknown", "string", packageName);
         if (uploadStatusMap.containsKey(statusCode)) {
             stringId = getResources().getIdentifier(uploadStatusMap.get(statusCode), "string",

@@ -29,7 +29,7 @@
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="net.wigle.wigleandroid.permission.MAPS_RECEIVE" />
+    <uses-permission android:name="dev.wigle.h.hayos.net.permission.MAPS_RECEIVE" />
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
@@ -43,7 +43,7 @@
     <uses-permission-sdk-23 android:name="android.permission.CAMERA" />
 
     <permission
-        android:name="net.wigle.wigleandroid.permission.MAPS_RECEIVE"
+        android:name="dev.wigle.h.hayos.net.permission.MAPS_RECEIVE"
         android:protectionLevel="signature" />
 
     <uses-feature
@@ -105,7 +105,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <data android:scheme="net.wigle.wigleandroid" />
+                <data android:scheme="dev.wigle.h.hayos.net" />
             </intent-filter>
         </activity>
         <activity
@@ -174,7 +174,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <data android:scheme="net.wigle.wigleandroid.register" />
+                <data android:scheme="dev.wigle.h.hayos.net.register" />
             </intent-filter>
         </activity>
         <activity
@@ -217,7 +217,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <data android:scheme="net.wigle.wigleandroid" />
+                <data android:scheme="dev.wigle.h.hayos.net" />
             </intent-filter>
         </activity>
         <activity
@@ -345,24 +345,24 @@
             android:exported="true"
             tools:ignore="ExportedReceiver">
             <intent-filter>
-                <action android:name="net.wigle.wigleandroid.END" />
+                <action android:name="dev.wigle.h.hayos.net.END" />
             </intent-filter>
         </receiver>
         <receiver android:name=".listener.UploadReceiver"
             android:exported="true"
             tools:ignore="ExportedReceiver">
             <intent-filter>
-                <action android:name="net.wigle.wigleandroid.UPLOAD" />
+                <action android:name="dev.wigle.h.hayos.net.UPLOAD" />
             </intent-filter>
         </receiver>
         <receiver android:name=".listener.ScanControlReceiver"
             android:exported="true"
             tools:ignore="ExportedReceiver">
             <intent-filter>
-                <action android:name="net.wigle.wigleandroid.SCAN" />
+                <action android:name="dev.wigle.h.hayos.net.SCAN" />
             </intent-filter>
             <intent-filter>
-                <action android:name="net.wigle.wigleandroid.PAUSE" />
+                <action android:name="dev.wigle.h.hayos.net.PAUSE" />
             </intent-filter>
         </receiver>
         <receiver

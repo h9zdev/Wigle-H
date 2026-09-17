@@ -20,6 +20,8 @@ import android.widget.RemoteViews;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
+import net.wigle.wigleandroid.listener.ScanControlReceiver;
+import net.wigle.wigleandroid.listener.UploadReceiver;
 import net.wigle.wigleandroid.ui.UINumberFormat;
 import net.wigle.wigleandroid.util.Logging;
 import net.wigle.wigleandroid.util.PreferenceKeys;
@@ -51,11 +53,11 @@ public final class WigleService extends Service {
     private final IBinder wigleServiceBinder = new WigleServiceBinder(this);
     private final NumberFormat countFormat = NumberFormat.getIntegerInstance();
 
-    public static final String UPLOAD_COMPLETE_INTENT = "net.wigle.wigleandroid.UPLOAD_COMPLETE";
-    public static final String UPLOAD_FAILED_INTENT = "net.wigle.wigleandroid.UPLOAD_FAILED";
-    public static final String UPLOAD_INTENT = "net.wigle.wigleandroid.UPLOAD";
-    public static final String PAUSE_INTENT = "net.wigle.wigleandroid.PAUSE";
-    public static final String SCAN_INTENT = "net.wigle.wigleandroid.SCAN";
+    public static final String UPLOAD_COMPLETE_INTENT = "dev.wigle.h.hayos.net.UPLOAD_COMPLETE";
+    public static final String UPLOAD_FAILED_INTENT = "dev.wigle.h.hayos.net.UPLOAD_FAILED";
+    public static final String UPLOAD_INTENT = "dev.wigle.h.hayos.net.UPLOAD";
+    public static final String PAUSE_INTENT = "dev.wigle.h.hayos.net.PAUSE";
+    public static final String SCAN_INTENT = "dev.wigle.h.hayos.net.SCAN";
 
     private class GuardThread extends Thread {
         GuardThread() {
@@ -244,7 +246,7 @@ public final class WigleService extends Service {
 
                 final Intent pauseSharedIntent = new Intent();
                 pauseSharedIntent.setAction(PAUSE_INTENT);
-                pauseSharedIntent.setClass(getApplicationContext(), net.wigle.wigleandroid.listener.ScanControlReceiver.class);
+                pauseSharedIntent.setClass(getApplicationContext(), ScanControlReceiver.class);
 
                 final MainActivity ma = MainActivity.getMainActivity();
                 Notification notification = null;
@@ -252,16 +254,16 @@ public final class WigleService extends Service {
                 if (null == ma) {
                     Logging.info("MainActivity is null");
                 } else {
-                    final PendingIntent pauseIntent = PendingIntent.getBroadcast(MainActivity.getMainActivity(), 0, pauseSharedIntent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_CANCEL_CURRENT);
+                    final PendingIntent pauseIntent = PendingIntent.getBroadcast(MainActivity.getMainActivity(), 0, pauseSharedIntent, FLAG_IMMUTABLE | PendingIntent.FLAG_CANCEL_CURRENT);
                     final Intent scanSharedIntent = new Intent();
                     scanSharedIntent.setAction(SCAN_INTENT);
-                    scanSharedIntent.setClass(getApplicationContext(), net.wigle.wigleandroid.listener.ScanControlReceiver.class);
-                    final PendingIntent scanIntent = PendingIntent.getBroadcast(MainActivity.getMainActivity(), 0, scanSharedIntent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_CANCEL_CURRENT);
+                    scanSharedIntent.setClass(getApplicationContext(), ScanControlReceiver.class);
+                    final PendingIntent scanIntent = PendingIntent.getBroadcast(MainActivity.getMainActivity(), 0, scanSharedIntent, FLAG_IMMUTABLE | PendingIntent.FLAG_CANCEL_CURRENT);
 
                     final Intent uploadSharedIntent = new Intent();
                     uploadSharedIntent.setAction(UPLOAD_INTENT);
-                    uploadSharedIntent.setClass(getApplicationContext(), net.wigle.wigleandroid.listener.UploadReceiver.class);
-                    final PendingIntent uploadIntent = PendingIntent.getBroadcast(MainActivity.getMainActivity(), 0, uploadSharedIntent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_CANCEL_CURRENT);
+                    uploadSharedIntent.setClass(getApplicationContext(), UploadReceiver.class);
+                    final PendingIntent uploadIntent = PendingIntent.getBroadcast(MainActivity.getMainActivity(), 0, uploadSharedIntent, FLAG_IMMUTABLE | PendingIntent.FLAG_CANCEL_CURRENT);
                     if (SDK_INT >= 31) {
                         notification = getNotification31(title, context, text,
                                 ListFragment.lameStatic.newWifi, ListFragment.lameStatic.runNets,

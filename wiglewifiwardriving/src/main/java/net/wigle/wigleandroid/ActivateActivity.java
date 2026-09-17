@@ -56,7 +56,7 @@ import java.util.concurrent.Executors;
 public class ActivateActivity extends AppCompatActivity {
 
     //intent string
-    public static final String barcodeIntent = "net.wigle.wigleandroid://activate";
+    public static final String barcodeIntent = "dev.wigle.h.hayos.net://activate";
 
     //log tag for activity
     private static final String LOG_TAG = "wigle.activate";

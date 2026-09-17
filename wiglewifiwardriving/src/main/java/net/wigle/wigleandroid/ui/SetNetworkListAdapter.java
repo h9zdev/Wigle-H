@@ -26,6 +26,7 @@ import net.wigle.wigleandroid.model.Network;
 import net.wigle.wigleandroid.model.NetworkType;
 import net.wigle.wigleandroid.model.OUI;
 import net.wigle.wigleandroid.model.RssiSample;
+import net.wigle.wigleandroid.util.DeviceCategoryDetector;
 import net.wigle.wigleandroid.util.Logging;
 import net.wigle.wigleandroid.util.PreferenceKeys;
 import net.wigle.wigleandroid.util.RssiHistoryCache;
@@ -247,17 +248,17 @@ public final class SetNetworkListAdapter extends AbstractListAdapter<Network> {
         holder.wepIcon.setImageResource(NetworkListUtil.getImage(network));
 
         if (NetworkType.BT.equals(network.getType()) || BLE.equals(network.getType())) {
-            holder.btIcon.setVisibility(View.VISIBLE);
+            holder.btIcon.setVisibility(VISIBLE);
             Integer btImageId = NetworkListUtil.getBtImage(network);
             if (null == btImageId) {
-                holder.btIcon.setVisibility(View.GONE);
+                holder.btIcon.setVisibility(GONE);
             } else {
                 holder.btIcon.setImageResource(btImageId);
                 ImageViewCompat.setImageTintList(holder.btIcon, ColorStateList.valueOf(
                         ContextCompat.getColor(getContext(), R.color.colorNavigationItemFg)));
             }
         } else {
-            holder.btIcon.setVisibility(View.GONE);
+            holder.btIcon.setVisibility(GONE);
         }
 
         if (NetworkType.WIFI.equals(network.getType())) {
@@ -276,21 +277,23 @@ public final class SetNetworkListAdapter extends AbstractListAdapter<Network> {
                 final Integer img = NetworkListUtil.getBleAddrTypeImage(bleAddressType, network.getBssid());
                 if (null != img) {
                     holder.btRandom.setImageResource(img);
-                    holder.btRandom.setVisibility(View.VISIBLE);
+                    holder.btRandom.setVisibility(VISIBLE);
                 } else {
-                    holder.btRandom.setVisibility(View.GONE);
+                    holder.btRandom.setVisibility(GONE);
                 }
             } else {
                 //DEBUG: Logging.error("null/random address type: "+bleAddressType);
-                holder.btRandom.setVisibility(View.GONE);
+                holder.btRandom.setVisibility(GONE);
             }
         } else {
-            holder.btRandom.setVisibility(View.GONE);
+            holder.btRandom.setVisibility(GONE);
         }
 
-        holder.ssid.setText(network.getSsid());
-
         final String ouiString = network.getOui(ListFragment.lameStatic.oui);
+        final String categoryTag = DeviceCategoryDetector.getCategoryTag(
+                network.getSsid(), network.getBssid(), ouiString);
+        holder.ssid.setText(network.getSsid() + categoryTag);
+
         final String sep = ouiString.length() > 0 ? " - " : "";
         holder.oui.setText(ouiString + sep);
         if (BLE.equals(network.getType())) {

@@ -3,9 +3,11 @@ package net.wigle.wigleandroid;
 import static net.wigle.wigleandroid.util.PreferenceKeys.PREF_FOSS_MAPS_VECTOR_TILE_KEY;
 import static net.wigle.wigleandroid.util.PreferenceKeys.PREF_FOSS_MAPS_VECTOR_TILE_STYLE;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -15,6 +17,10 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.Toast;
+
+import net.wigle.wigleandroid.ui.WiGLEToast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -33,6 +39,7 @@ import org.maplibre.android.MapLibre;
 import org.maplibre.android.annotations.Polyline;
 import org.maplibre.android.annotations.PolylineOptions;
 import org.maplibre.android.camera.CameraPosition;
+import org.maplibre.android.camera.CameraUpdate;
 import org.maplibre.android.camera.CameraUpdateFactory;
 import org.maplibre.android.gestures.MoveGestureDetector;
 import org.maplibre.android.location.LocationComponent;
@@ -136,17 +143,14 @@ public class FossMappingFragment extends AbstractMappingFragment {
                     prefs.getString(PREF_FOSS_MAPS_VECTOR_TILE_KEY, null) : null;
             final String mapServerUrl = prefs != null ?
                     prefs.getString(PREF_FOSS_MAPS_VECTOR_TILE_STYLE, null) : null;
+            final String mapboxToken = prefs != null ?
+                    prefs.getString(PreferenceKeys.PREF_MAPBOX_ACCESS_TOKEN, null) : null;
+            final int mapType = prefs != null ?
+                    prefs.getInt(PreferenceKeys.PREF_MAP_TYPE, 1) : 1;
 
-            //TODO: day/night style?
-            String styleUrl;
-            if (mapServerKey != null && !mapServerKey.isEmpty()) {
-                styleUrl = mapServerUrl + mapServerKey;
-                //e.g. "https://api.maptiler.com/maps/streets-v2/style.json?key=" + mapServerKey;
-            } else {
-                styleUrl = "https://demotiles.maplibre.org/style.json";
-            }
+            final Style.Builder styleBuilder = getStyleBuilderForMapType(mapType, mapServerUrl, mapServerKey, mapboxToken);
             try {
-                mapLibreMap.setStyle(styleUrl, style -> {
+                mapLibreMap.setStyle(styleBuilder, style -> {
                     final Activity activity = getActivity();
                     if (activity != null) {
                         mapRender = new FossMapRender(activity, mapLibreMap, false);
@@ -159,7 +163,7 @@ public class FossMappingFragment extends AbstractMappingFragment {
                     initializeCameraPosition(mapLibreMap, oldCenter, oldZoom, prefs);
                 });
             } catch (RuntimeException styleEx) {
-                Logging.error("Failed to apply FOSS map style '" + styleUrl + "': ", styleEx);
+                Logging.error("Failed to apply FOSS map style: ", styleEx);
                 FossConfigDialogUtil.show(getActivity(), null);
             }
         });
@@ -184,8 +188,8 @@ public class FossMappingFragment extends AbstractMappingFragment {
         if (c == null) {
             return;
         }
-        if (ActivityCompat.checkSelfPermission(c, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                || ActivityCompat.checkSelfPermission(c, android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(c, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(c, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 final LocationComponent locationComponent = map.getLocationComponent();
             LocationComponentOptions locationComponentOptions =
                 LocationComponentOptions.builder(c).build();
@@ -242,7 +246,7 @@ public class FossMappingFragment extends AbstractMappingFragment {
      */
     @SuppressLint("MissingPermission")
     private void setupCenterLocationButton(final View view) {
-        final android.widget.ImageButton centerButton = view.findViewById(R.id.center_location_button);
+        final ImageButton centerButton = view.findViewById(R.id.center_location_button);
         if (centerButton == null) {
             return;
         }
@@ -271,7 +275,7 @@ public class FossMappingFragment extends AbstractMappingFragment {
                     cameraBearing = getBearing(a);
                 }
 
-                final org.maplibre.android.camera.CameraUpdate centerUpdate =
+                final CameraUpdate centerUpdate =
                         (cameraBearing == null) ?
                                 CameraUpdateFactory.newLatLng(
                                         new org.maplibre.android.geometry.LatLng(
@@ -455,8 +459,153 @@ public class FossMappingFragment extends AbstractMappingFragment {
         }
     }
 
+    public static Style.Builder getStyleBuilderForMapType(final int mapType, final String customUrl, final String customKey) {
+        return getStyleBuilderForMapType(mapType, customUrl, customKey, null);
+    }
+
+    public static Style.Builder getStyleBuilderForMapType(final int mapType, final String customUrl, final String customKey, final String mapboxToken) {
+        String token = (mapboxToken != null && !mapboxToken.trim().isEmpty()) ? mapboxToken.trim() : null;
+        if (token == null && customKey != null && customKey.trim().startsWith("pk.")) {
+            token = customKey.trim();
+        }
+        if (token != null && !token.isEmpty()) {
+            switch (mapType) {
+                case 2: // Satellite
+                case 3: // Hybrid
+                    return new Style.Builder().fromUri("https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v12?access_token=" + token);
+                case 4: // Terrain / Outdoors
+                    return new Style.Builder().fromUri("https://api.mapbox.com/styles/v1/mapbox/outdoors-v12?access_token=" + token);
+                case 1: // Normal / Streets
+                default:
+                    return new Style.Builder().fromUri("https://api.mapbox.com/styles/v1/mapbox/streets-v12?access_token=" + token);
+            }
+        }
+        if (customKey != null && !customKey.isEmpty() && customUrl != null && !customUrl.isEmpty()) {
+            return new Style.Builder().fromUri(customUrl + customKey);
+        }
+        switch (mapType) {
+            case 2: // MAP_TYPE_SATELLITE
+                return new Style.Builder()
+                        .withSource(new RasterSource("sat-tiles", "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", 256))
+                        .withLayer(new RasterLayer("sat-layer", "sat-tiles"));
+            case 3: // MAP_TYPE_HYBRID
+                return new Style.Builder()
+                        .withSource(new RasterSource("sat-tiles", "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", 256))
+                        .withLayer(new RasterLayer("sat-layer", "sat-tiles"))
+                        .withSource(new RasterSource("osm-tiles", "https://tile.openstreetmap.org/{z}/{x}/{y}.png", 256))
+                        .withLayer(new RasterLayer("osm-layer", "osm-tiles"));
+            case 4: // MAP_TYPE_TERRAIN
+                return new Style.Builder()
+                        .withSource(new RasterSource("topo-tiles", "https://tile.opentopomap.org/{z}/{x}/{y}.png", 256))
+                        .withLayer(new RasterLayer("topo-layer", "topo-tiles"));
+            case 1: // MAP_TYPE_NORMAL
+            default:
+                if (customUrl != null && !customUrl.isEmpty()) {
+                    return new Style.Builder().fromUri(customUrl);
+                }
+                return new Style.Builder()
+                        .withSource(new RasterSource("osm-tiles", "https://tile.openstreetmap.org/{z}/{x}/{y}.png", 256))
+                        .withLayer(new RasterLayer("osm-layer", "osm-tiles"));
+        }
+    }
+
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        final Activity a = getActivity();
+        if (a == null) {
+            return false;
+        }
+        final SharedPreferences prefs = a.getSharedPreferences(PreferenceKeys.SHARED_PREFS, 0);
+        switch (item.getItemId()) {
+            case MENU_MAP_TYPE: {
+                if (mapView != null) {
+                    mapView.getMapAsync(mapLibreMap -> {
+                        int newMapType = prefs.getInt(PreferenceKeys.PREF_MAP_TYPE, 1);
+                        switch (newMapType) {
+                            case 1:
+                                newMapType = 2; // Satellite
+                                WiGLEToast.showOverActivity(a, R.string.tab_map, getString(R.string.map_toast_satellite), Toast.LENGTH_SHORT);
+                                break;
+                            case 2:
+                                newMapType = 3; // Hybrid
+                                WiGLEToast.showOverActivity(a, R.string.tab_map, getString(R.string.map_toast_hybrid), Toast.LENGTH_SHORT);
+                                break;
+                            case 3:
+                                newMapType = 4; // Terrain
+                                WiGLEToast.showOverActivity(a, R.string.tab_map, getString(R.string.map_toast_terrain), Toast.LENGTH_SHORT);
+                                break;
+                            case 4:
+                            default:
+                                newMapType = 1; // Normal
+                                WiGLEToast.showOverActivity(a, R.string.tab_map, getString(R.string.map_toast_normal), Toast.LENGTH_SHORT);
+                                break;
+                        }
+                        SharedPreferences.Editor edit = prefs.edit();
+                        edit.putInt(PreferenceKeys.PREF_MAP_TYPE, newMapType);
+                        edit.apply();
+
+                        final String mapServerKey = prefs.getString(PREF_FOSS_MAPS_VECTOR_TILE_KEY, null);
+                        final String mapServerUrl = prefs.getString(PREF_FOSS_MAPS_VECTOR_TILE_STYLE, null);
+                        final String mapboxToken = prefs.getString(PreferenceKeys.PREF_MAPBOX_ACCESS_TOKEN, null);
+                        final Style.Builder styleBuilder = getStyleBuilderForMapType(newMapType, mapServerUrl, mapServerKey, mapboxToken);
+                        mapLibreMap.setStyle(styleBuilder, style -> {
+                            setupTileOverlay(mapLibreMap, prefs, style);
+                            if (mapRender != null) {
+                                mapRender.reCluster();
+                            }
+                        });
+                    });
+                }
+                return true;
+            }
+            case MENU_TOGGLE_LOCK: {
+                state.locked = !state.locked;
+                String name = state.locked ? getString(R.string.menu_turn_off_lockon) : getString(R.string.menu_turn_on_lockon);
+                item.setTitle(name);
+                return true;
+            }
+            case MENU_TOGGLE_NEWDB: {
+                final boolean showNewDBOnly = !prefs.getBoolean(PreferenceKeys.PREF_MAP_ONLY_NEWDB, false);
+                SharedPreferences.Editor edit = prefs.edit();
+                edit.putBoolean(PreferenceKeys.PREF_MAP_ONLY_NEWDB, showNewDBOnly);
+                edit.apply();
+                String name = showNewDBOnly ? getString(R.string.menu_show_old) : getString(R.string.menu_show_new);
+                item.setTitle(name);
+                if (mapRender != null) {
+                    mapRender.reCluster();
+                }
+                return true;
+            }
+            case MENU_LABEL: {
+                final boolean showLabel = !prefs.getBoolean(PreferenceKeys.PREF_MAP_LABEL, true);
+                SharedPreferences.Editor edit = prefs.edit();
+                edit.putBoolean(PreferenceKeys.PREF_MAP_LABEL, showLabel);
+                edit.apply();
+                String name = showLabel ? getString(R.string.menu_labels_off) : getString(R.string.menu_labels_on);
+                item.setTitle(name);
+                if (mapRender != null) {
+                    mapRender.reCluster();
+                }
+                return true;
+            }
+            case MENU_CLUSTER: {
+                final boolean showCluster = !prefs.getBoolean(PreferenceKeys.PREF_MAP_CLUSTER, true);
+                SharedPreferences.Editor edit = prefs.edit();
+                edit.putBoolean(PreferenceKeys.PREF_MAP_CLUSTER, showCluster);
+                edit.apply();
+                String name = showCluster ? getString(R.string.menu_cluster_off) : getString(R.string.menu_cluster_on);
+                item.setTitle(name);
+                if (mapRender != null) {
+                    mapRender.reCluster();
+                }
+                return true;
+            }
+            case MENU_FILTER: {
+                final Intent intent = new Intent(getActivity(), MapFilterActivity.class);
+                getActivity().startActivityForResult(intent, UPDATE_MAP_FILTER);
+                return true;
+            }
+        }
         return false;
     }
 
@@ -489,7 +638,7 @@ public class FossMappingFragment extends AbstractMappingFragment {
                                     if (null != prefs && prefs.getBoolean(PreferenceKeys.PREF_MAP_FOLLOW_BEARING, false)) {
                                         cameraBearing = getBearing(a);
                                     }
-                                    final org.maplibre.android.camera.CameraUpdate centerUpdate =
+                                    final CameraUpdate centerUpdate =
                                             (state.firstMove || cameraBearing == null) ?
                                                 CameraUpdateFactory.newLatLng(
                                                     new org.maplibre.android.geometry.LatLng(

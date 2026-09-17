@@ -28,6 +28,7 @@ import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.widget.Toast;
 import android.os.PowerManager;
 
 import androidx.annotation.NonNull;
@@ -626,7 +627,8 @@ public final class SettingsFragment extends Fragment implements DialogListener {
                     getString(R.string.language_zh_hk),
             };
             SettingsUtil.doSpinner(R.id.language_spinner, view, PreferenceKeys.PREF_LANGUAGE, "", languages, languageName, getContext());
-            final CheckBox fossMapOn = PrefsBackedCheckbox.prefBackedCheckBox(this.getActivity(), view, R.id.foss_maps, PreferenceKeys.PREF_USE_FOSS_MAPS, false, value -> {
+            final CheckBox useMapboxCheckBox = PrefsBackedCheckbox.prefBackedCheckBox(this.getActivity(), view, R.id.use_mapbox, PreferenceKeys.PREF_USE_MAPBOX_MAPS, false, null);
+            final CheckBox fossMapOn = PrefsBackedCheckbox.prefBackedCheckBox(this.getActivity(), view, R.id.foss_maps, PreferenceKeys.PREF_USE_FOSS_MAPS, true, value -> {
                 setFossMapVisible(value, view);
                 if (value) {
                     setupFossMapEditFields(view, prefs, editor);
@@ -903,6 +905,42 @@ public final class SettingsFragment extends Fragment implements DialogListener {
                 }
             });
 
+        }
+
+        final TextInputEditText mapboxTokenEdit = view.findViewById(R.id.edit_mapbox_access_token);
+        final Button saveMapboxBtn = view.findViewById(R.id.save_mapbox_token_button);
+        if (mapboxTokenEdit != null) {
+            final String currentToken = prefs.getString(PreferenceKeys.PREF_MAPBOX_ACCESS_TOKEN, "");
+            mapboxTokenEdit.setText(currentToken);
+            mapboxTokenEdit.addTextChangedListener(new SetWatcher() {
+                @Override
+                public void onTextChanged(final String s) {
+                    if (s != null && !s.trim().isEmpty()) {
+                        editor.putString(PreferenceKeys.PREF_MAPBOX_ACCESS_TOKEN, s.trim());
+                    } else {
+                        editor.remove(PreferenceKeys.PREF_MAPBOX_ACCESS_TOKEN);
+                    }
+                    editor.apply();
+                }
+            });
+            if (saveMapboxBtn != null) {
+                saveMapboxBtn.setOnClickListener(v -> {
+                    Editable text = mapboxTokenEdit.getText();
+                    String val = text == null ? "" : text.toString().trim();
+                    if (!val.isEmpty()) {
+                        editor.putString(PreferenceKeys.PREF_MAPBOX_ACCESS_TOKEN, val);
+                        editor.putBoolean(PreferenceKeys.PREF_USE_MAPBOX_MAPS, true);
+                        editor.apply();
+                        final Activity a = getActivity();
+                        if (a != null) {
+                            WiGLEToast.showOverActivity(a, R.string.settings_app_name, "Mapbox API Key saved successfully!", Toast.LENGTH_SHORT);
+                        }
+                    } else {
+                        editor.remove(PreferenceKeys.PREF_MAPBOX_ACCESS_TOKEN);
+                        editor.apply();
+                    }
+                });
+            }
         }
 
         if (fossMapStyleUrlEdit != null) {

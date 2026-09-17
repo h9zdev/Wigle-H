@@ -309,6 +309,50 @@
         android:layout_height="wrap_content"
         android:text="@string/enable_map_bearing" />
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/mapbox_section_title"
+        android:textColor="@color/cyber_cyan"
+        android:textStyle="bold"
+        android:textSize="14sp"
+        android:paddingTop="12dp"
+        android:paddingBottom="4dp"/>
+
+    <CheckBox android:id="@+id/use_mapbox"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/use_mapbox_maps" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="4dp"
+        android:paddingBottom="8dp">
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/edit_mapbox_token_layout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:placeholderText="pk.eyJ1I..."
+            android:hint="@string/mapbox_access_token_hint">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_mapbox_access_token"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textVisiblePassword"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
+        <Button
+            android:id="@+id/save_mapbox_token_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="8dp"
+            android:text="@string/save"/>
+    </LinearLayout>
+
     <CheckBox android:id="@+id/foss_maps"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"

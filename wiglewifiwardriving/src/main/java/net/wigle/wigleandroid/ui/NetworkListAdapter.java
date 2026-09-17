@@ -13,6 +13,7 @@ import net.wigle.wigleandroid.R;
 import net.wigle.wigleandroid.model.Network;
 import net.wigle.wigleandroid.model.NetworkType;
 import net.wigle.wigleandroid.model.OUI;
+import net.wigle.wigleandroid.util.DeviceCategoryDetector;
 import net.wigle.wigleandroid.util.Logging;
 
 import java.util.ArrayList;
@@ -262,10 +263,12 @@ public final class NetworkListAdapter extends AbstractListAdapter<Network> {
         }
 
         TextView tv = row.findViewById(R.id.ssid);
-        tv.setText(network.getSsid());
+        final String ouiString = network.getOui(ListFragment.lameStatic.oui);
+        final String categoryTag = DeviceCategoryDetector.getCategoryTag(
+                network.getSsid(), network.getBssid(), ouiString);
+        tv.setText(network.getSsid() + categoryTag);
 
         tv = row.findViewById(R.id.oui);
-        final String ouiString = network.getOui(ListFragment.lameStatic.oui);
         final String sep = ouiString.length() > 0 ? " - " : "";
         tv.setText(ouiString + sep);
 

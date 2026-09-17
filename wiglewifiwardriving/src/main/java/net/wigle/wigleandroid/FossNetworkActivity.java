@@ -29,6 +29,7 @@ import org.maplibre.android.annotations.IconFactory;
 import org.maplibre.android.annotations.MarkerOptions;
 import org.maplibre.android.camera.CameraPosition;
 import org.maplibre.android.camera.CameraUpdateFactory;
+import org.maplibre.android.geometry.LatLng;
 import org.maplibre.android.maps.MapLibreMap;
 import org.maplibre.android.maps.MapView;
 import org.maplibre.android.maps.Style;
@@ -143,17 +144,17 @@ public class FossNetworkActivity extends AbstractNetworkActivity {
                         prefs.getString(PREF_FOSS_MAPS_VECTOR_TILE_KEY, null) : null;
                 final String mapServerUrl = prefs != null ?
                         prefs.getString(PREF_FOSS_MAPS_VECTOR_TILE_STYLE, null) : null;
+                final String mapboxToken = prefs != null ?
+                        prefs.getString(PreferenceKeys.PREF_MAPBOX_ACCESS_TOKEN, null) : null;
+                final int mapType = prefs != null ?
+                        prefs.getInt(PreferenceKeys.PREF_MAP_TYPE, 1) : 1;
 
-                String styleUrl;
-                if (mapServerKey != null && !mapServerKey.isEmpty()) {
-                    styleUrl = mapServerUrl + mapServerKey;
-                } else {
-                    styleUrl = "https://demotiles.maplibre.org/style.json";
-                }
+                final Style.Builder styleBuilder =
+                        FossMappingFragment.getStyleBuilderForMapType(mapType, mapServerUrl, mapServerKey, mapboxToken);
                 try {
-                    mapLibreMap.setStyle(styleUrl, style -> {
+                    mapLibreMap.setStyle(styleBuilder, style -> {
                         if ((network != null) && (network.getLatLng() != null)) {
-                            final org.maplibre.android.geometry.LatLng focusOn =
+                            final LatLng focusOn =
                                     toMapLibreLatLng(network.getLatLng());
                             if (focusOn == null) {
                                 Logging.warn("Skipping FOSS network map focus; invalid coordinates: "
@@ -180,7 +181,7 @@ public class FossNetworkActivity extends AbstractNetworkActivity {
                         }
                     });
                 } catch (RuntimeException styleEx) {
-                    Logging.error("Failed to apply FOSS map style '" + styleUrl + "': ", styleEx);
+                    Logging.error("Failed to apply FOSS map style: ", styleEx);
                     FossConfigDialogUtil.show(FossNetworkActivity.this, null);
                 }
             });
